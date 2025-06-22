@@ -5,6 +5,7 @@
 #include "../inc/csea.h"
 #include "../inc/knight.h"
 #include "../inc/random.hpp"
+#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -21,6 +22,10 @@ CSEAResult csea(const CSEAArgs &args) {
   int evaluations_upper_bound = get_evaluations_upper_bound(args);
 
   while (result.evaluations + evaluations_upper_bound < args.max_evaluations) {
+    cout << "Generation: " << result.generation
+         << ", Best Knight Fitness: " << result.fitness
+         << ", Evaluations: " << result.evaluations << endl;
+
     // Generate a set of knight from the crossing of the castles
     vector<Knight> new_knights = generate_new_generation(population, args);
 
@@ -140,7 +145,14 @@ void complete_population(vector<Castle> &population, const CSEAArgs &args,
 
   // If not found, add it to the population
   if (!found_best) {
-    population.push_back(Castle(best.best_knight, best.fitness));
+    // If population is full, replace the worst castle
+    if (population.size() >= args.population_size) {
+      auto worst_it = max_element(population.begin(), population.end());
+      *worst_it = Castle(best.best_knight, best.fitness);
+    } else {
+      // Otherwise, just add the best knight as a new castle
+      population.emplace_back(best.best_knight, best.fitness);
+    }
   }
 
   // Fill the rest of the population with random castles if needed
@@ -153,12 +165,10 @@ void complete_population(vector<Castle> &population, const CSEAArgs &args,
 }
 
 int get_evaluations_upper_bound(const CSEAArgs &args) {
-  int evals_from_crossing =
+  int evals_from_sieging =
       args.population_size * (args.population_size - 1) / 2;
-  int evals_from_alliances = args.population_size / 2;
-  int evals_from_new_castles =
-      evals_from_alliances; // Each alliance creates another castle
-  return evals_from_crossing + evals_from_alliances + evals_from_new_castles;
+  int evals_from_population_completition = args.population_size;
+  return evals_from_sieging + evals_from_population_completition;
 }
 
 #endif // __CSEA_CPP

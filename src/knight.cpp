@@ -47,6 +47,13 @@ void Knight::gaussian_mutation(double mutation_rate, double sigma) {
     int index = Random::get<int>(0, dimension - 1);
     double mutation_value = Random::get(distribution);
     chromosome[index] += mutation_value;
+
+    // Ensure the mutated value is within bounds
+    if (chromosome[index] < -100.0) {
+      chromosome[index] = -100.0;
+    } else if (chromosome[index] > 100.0) {
+      chromosome[index] = 100.0;
+    }
   }
 }
 

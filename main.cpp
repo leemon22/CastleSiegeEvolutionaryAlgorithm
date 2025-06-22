@@ -14,8 +14,9 @@ int main() {
 
   int num_samples = 1;
 
-  vector<int> dims = {10, 30, 50, 100};
-  int population_size = 100;
+  // Available dimensions: 10, 30, 50
+  vector<int> dims = {10};
+  int population_size = 25;
   double mutation_rate = 0.005;
   double sigma = 100.0;
   double epsilon = 1e-6;
@@ -27,17 +28,19 @@ int main() {
     cout << "Running CSEA with dimension: " << dim
          << ", max evaluations: " << csea_args.max_evaluations << endl;
 
-    for (int funcid = 1; funcid <= 30; funcid++) {
+    for (int funcid = 1; funcid <= 2; funcid++) {
       for (int i = 0; i < num_samples; ++i) {
 
         cec17_init("CSEA", funcid, dim);
-        // cec17_print_output();
+        // cec17_print_output(); // Comment to print in console, uncomment to
+        // print in file
 
         Random::seed(seed + i);
         auto result = csea(csea_args);
 
         cout << "Fitness[F" << funcid << "]: " << scientific
-             << cec17_error(result.fitness) << endl;
+             << cec17_error(result.fitness)
+             << ", Number generations: " << result.generation << endl;
       }
     }
   }

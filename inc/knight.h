@@ -1,6 +1,7 @@
 #ifndef __KNIGHT_H
 #define __KNIGHT_H
 
+#include <iostream>
 #include <limits>
 extern "C" {
 #include "../cec17.h"
@@ -38,9 +39,9 @@ public:
    *
    * @param dimension The size of the chromosome
    * @param randomize If true, initializes the chromosome with random values
-   * @param sigma The standard deviation for the Gaussian mutation
+   * @param sigma The radius for random initialization
    */
-  Knight(int dimension, bool randomize = true, double sigma = 100.0);
+  Knight(int dimension, bool randomize = true, double radius = 100.0);
 
   /** @brief Copy constructor
    *
@@ -122,7 +123,23 @@ public:
    * @return The fitness value
    */
   double fitness() const {
-    return cec17_fitness(const_cast<double *>(chromosome.data()));
+    double fitness = cec17_fitness(const_cast<double *>(chromosome.data()));
+
+    // Calculate distance (max distance)
+    double distance = 0.0;
+    for(size_t i = 0; i < chromosome.size(); ++i) {
+      distance = max(distance, abs(chromosome[i]));
+    }
+    if(distance > 100.0) {
+      // Print chromosome if distance is greater than 100
+      cout << "Chromosome exceeds bounds: ";
+      for (const auto &gene : chromosome) {
+        cout << gene << " ";
+      }
+      exit(1);
+    }
+
+    return fitness;
   }
 };
 
